@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Globo Emergente con Productos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Fondo para el overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+
+        /* El globo emergente */
+        .popup {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            color: #333;
+        }
+
+        .popup h1 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .popup label {
+            display: block;
+            margin: 10px 0;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .popup button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #25D366;
+            color: white;
+            cursor: pointer;
+        }
+
+        .popup button:hover {
+            background-color: #1da85b;
+        }
+
+        .show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Enlace para abrir el globo emergente -->
+    <button id="openPopup">Abrir Lista de Productos</button>
+
+    <!-- Overlay con el globo emergente -->
+    <div class="overlay" id="overlay">
+        <div class="popup">
+            <h1>Selecciona tus productos</h1>
+            <form id="checklistForm">
+                <label><input type="checkbox" name="item" value="Producto A - 10.00"> Producto A - $10.00</label>
+                <label><input type="checkbox" name="item" value="Producto B - 15.00"> Producto B - $15.00</label>
+                <label><input type="checkbox" name="item" value="Producto C - 20.00"> Producto C - $20.00</label>
+                <label><input type="checkbox" name="item" value="Producto D - 25.00"> Producto D - $25.00</label>
+                <label><input type="checkbox" name="item" value="Producto E - 30.00"> Producto E - $30.00</label>
+                <button type="submit">Enviar a WhatsApp</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Variables de los elementos
+        const openPopup = document.getElementById('openPopup');
+        const overlay = document.getElementById('overlay');
+        const checklistForm = document.getElementById('checklistForm');
+
+        // Abrir el globo emergente manualmente
+        openPopup.addEventListener('click', () => {
+            overlay.classList.add('show');
+        });
+
+        // Verificar parámetros en la URL para abrir el globo emergente automáticamente
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('popup') && params.get('popup') === 'true') {
+            overlay.classList.add('show');
+        }
+
+        // Capturar el formulario y enviar a WhatsApp
+        checklistForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevenir recarga de la página
+
+            // Obtener opciones seleccionadas
+            const selectedItems = Array.from(document.querySelectorAll('input[name="item"]:checked'))
+                .map(input => input.value);
+
+            if (selectedItems.length === 0) {
+                alert('Por favor selecciona al menos un producto.');
+                return;
+            }
+
+            // Calcular el precio total
+            const totalPrice = selectedItems
+                .map(item => parseFloat(item.split('-')[1].trim())) // Extraer precio
+                .reduce((sum, price) => sum + price, 0); // Sumar precios
+  // Construir el mensaje
+            const mensaje = `He seleccionado los siguientes productos:\n\n${selectedItems.join('\n')}\n\nTotal: $${totalPrice.toFixed(2)}`;
+            const numeroWhatsApp = "573234283797"; // Número de WhatsApp receptor
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
+
+            // Redirigir a WhatsApp
+            window.location.href = urlWhatsApp;
+        });
+    </script>
+
+</body>
+</html>
